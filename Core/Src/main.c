@@ -106,6 +106,27 @@ const osThreadAttr_t DebounceTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for SemaphoreToggle */
+osThreadId_t SemaphoreToggleHandle;
+const osThreadAttr_t SemaphoreToggle_attributes = {
+  .name = "SemaphoreToggle",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityHigh,
+};
+/* Definitions for semaphore_TogD3 */
+osThreadId_t semaphore_TogD3Handle;
+const osThreadAttr_t semaphore_TogD3_attributes = {
+  .name = "semaphore_TogD3",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
+/* Definitions for myTask11 */
+osThreadId_t myTask11Handle;
+const osThreadAttr_t myTask11_attributes = {
+  .name = "myTask11",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 /* Definitions for SW_Timer_7Seg */
 osTimerId_t SW_Timer_7SegHandle;
 const osTimerAttr_t SW_Timer_7Seg_attributes = {
@@ -165,6 +186,9 @@ void Mutex_CountDownTask(void *argument);
 void UpdateGlobDisplayProcess(void *argument);
 void ResetGlobalTask(void *argument);
 void StartDebounce(void *argument);
+void Semaphore_Toggle_Task(void *argument);
+void StartTask10(void *argument);
+void StartTask11(void *argument);
 void SW_Timer_Countdown(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -280,6 +304,15 @@ int main(void)
 
   /* creation of DebounceTask */
   DebounceTaskHandle = osThreadNew(StartDebounce, NULL, &DebounceTask_attributes);
+
+  /* creation of SemaphoreToggle */
+  SemaphoreToggleHandle = osThreadNew(Semaphore_Toggle_Task, NULL, &SemaphoreToggle_attributes);
+
+  /* creation of semaphore_TogD3 */
+  semaphore_TogD3Handle = osThreadNew(StartTask10, NULL, &semaphore_TogD3_attributes);
+
+  /* creation of myTask11 */
+  myTask11Handle = osThreadNew(StartTask11, NULL, &myTask11_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -429,8 +462,8 @@ static void MX_USART2_UART_Init(void)
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
+  /* USER CODE BEGIN MX_GPIO_Init_1 */
+  /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -513,8 +546,8 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_SetPriority(EXTI4_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI4_IRQn);
 
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
+  /* USER CODE BEGIN MX_GPIO_Init_2 */
+  /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
@@ -711,9 +744,9 @@ void UpdateGlobDisplayProcess(void *argument)
    * right-most two-digits of the 7Seg Display */
 
   for(;;)
-	  {
+  	  {
 	  MultiFunctionShield_Display_Two_Digits(mutex_protected_count);
-	  osDelay(150);	// The competing process to inc/dec are 200 - 300mS
+	  osDelay(100);	// The competing process to inc/dec are 200 - 300mS
 					// So show this a bit faster
 	  }
   /* USER CODE END UpdateGlobDisplayProcess */
@@ -779,6 +812,73 @@ void StartDebounce(void *argument)
   /* USER CODE END StartDebounce */
 }
 
+/* USER CODE BEGIN Header_Semaphore_Toggle_Task */
+/**
+* @brief Function implementing the SemaphoreToggle thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Semaphore_Toggle_Task */
+void Semaphore_Toggle_Task(void *argument)
+{
+  /* USER CODE BEGIN Semaphore_Toggle_Task */
+  /* Infinite loop */
+  for(;;)
+  {
+	if (osSemaphoreAcquire(Button_1_SemaphoreHandle, osWaitForever) == osOK)
+	{
+		HAL_GPIO_TogglePin(LED_D4_GPIO_Port, LED_D4_Pin);
+	}
+  }
+  /* USER CODE END Semaphore_Toggle_Task */
+}
+
+/* USER CODE BEGIN Header_StartTask10 */
+/**
+* @brief Function implementing the semaphore_TogD3 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTask10 */
+void StartTask10(void *argument)
+{
+  /* USER CODE BEGIN StartTask10 */
+  /* Infinite loop */
+  for(;;)
+  {
+	  if (osSemaphoreAcquire(Button_1_SemaphoreHandle, osWaitForever) == osOK)
+	  	{
+	  		HAL_GPIO_TogglePin(LED_D3_GPIO_Port, LED_D3_Pin);
+	  	}
+  }
+  /* USER CODE END StartTask10 */
+}
+
+/* USER CODE BEGIN Header_StartTask11 */
+/**
+* @brief Function implementing the myTask11 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTask11 */
+void StartTask11(void *argument)
+{
+  /* USER CODE BEGIN StartTask11 */
+  /* Infinite loop */
+  for(;;)
+  {
+	  /* This doesn't change the value, it just clears the display  */
+	  /* If asked to display a negative number, the function displays a "--"
+	  */
+	  osMutexWait(UpDownMutexHandle,osWaitForever);
+	  MultiFunctionShield_Display_Two_Digits(-1);
+	  osDelay(200);
+	  osMutexRelease(UpDownMutexHandle);
+	  osDelay(2);
+  }
+  /* USER CODE END StartTask11 */
+}
+
 /* SW_Timer_Countdown function */
 void SW_Timer_Countdown(void *argument)
 {
@@ -811,7 +911,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE BEGIN Callback 0 */
 
   /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM3) {
+  if (htim->Instance == TIM3)
+  {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
@@ -837,8 +938,7 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.

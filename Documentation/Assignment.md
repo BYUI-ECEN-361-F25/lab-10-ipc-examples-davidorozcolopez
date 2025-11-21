@@ -1,5 +1,5 @@
 # ECEN-361 Lab-10: IPC-Examples
-     Student Name:  ___________________________________
+     Student Name:  David Orozco
 
 ## Introduction and Objectives of the Lab
 
@@ -80,12 +80,12 @@ Now make sure to write the code inside of the Semaphore_Toggle_Task function tha
 
 <br>
 1. How did your task ‘wait’ for the debounced button? <br>
-<mark>_______________________________________________________ </mark>
+<mark>Through the osSemaphoreAcquire(Button_1_SemaphoreHandle, osWaitForever) == osOK, and it waits until the StartDebounce() function releases the Button_1_SemaphoreHandle (which is the correct button semaphore). </mark>
 <br>
 <br><br>
 
 2.)	How long is the time between the button interrupt coming in and it being enabled again? <br>
-<mark>_______________________________________________________ </mark>
+<mark>30 ms, according to the osDelay(30) </mark>
 ><br>
 > <br>
 
@@ -96,11 +96,11 @@ Now create a second task (semaphore_Toggle_D3) -- <p>
 
 
 3.)	Do both of (D4 and D3) toggle with a single button press?  Describe the behavior?  <br>
-<mark>_________________________________________________________________________________<br><br>
+<mark>No, only one of the LEDs (either D3 or D4) toggle with a single button press.<br><br>
 
 4.)	Now change one of the priorities of these two tasks, re-compile,  and re-run.
 How has the behavior changed?
-<mark>_________________________________________________________________________________<br><br>
+<mark>When I increased the priority for D4, then only this LED turns on every time I press button1.<br><br>
 
 
 ## Part 2: Mutexes
@@ -152,7 +152,7 @@ current count. The first two processes are done for you "Mutex_CountDownTask" an
 >
 ><br>
 >7.)	Comment on the Up/Down/ ”—” display that you see.  <br><br>
-><mark>___________________________________________________________________________________________________________<br><br><p>
+><mark>The 3 different tasks are competing for access to write to the 7-segment display, but only 1 of them can access it at the same time. So the 7-segment displays "blinks", and sometimes shows the "—", other times it counts up, and other times it counts down, doing all of this very fast.<br><br><p>
 
 
 >8.)	Is there a ‘priority’ associated with the Mutex?  If so, how can it be changed?
