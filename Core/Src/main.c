@@ -97,7 +97,7 @@ osThreadId_t ResetGlobalHandle;
 const osThreadAttr_t ResetGlobal_attributes = {
   .name = "ResetGlobal",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
+  .priority = (osPriority_t) osPriorityIdle,
 };
 /* Definitions for DebounceTask */
 osThreadId_t DebounceTaskHandle;

@@ -100,7 +100,7 @@ Now create a second task (semaphore_Toggle_D3) -- <p>
 
 4.)	Now change one of the priorities of these two tasks, re-compile,  and re-run.
 How has the behavior changed?
-<mark>When I increased the priority for D4, then only this LED turns on every time I press button1.<br><br>
+<mark>When I increased the priority for LED D4, then only this LED turns on every time I press button1.<br><br>
 
 
 ## Part 2: Mutexes
@@ -152,12 +152,12 @@ current count. The first two processes are done for you "Mutex_CountDownTask" an
 >
 ><br>
 >7.)	Comment on the Up/Down/ ”—” display that you see.  <br><br>
-><mark>The 3 different tasks are competing for access to write to the 7-segment display, but only 1 of them can access it at the same time. So the 7-segment displays "blinks", and sometimes shows the "—", other times it counts up, and other times it counts down, doing all of this very fast.<br><br><p>
+><mark>The 3 different tasks are competing for access to write to the 7-segment display, but only 1 of them can access it at a time. So the 7-segment display "blinks" every time a different task has access to it. Therefore, sometimes the 7-seg display shows the "—", other times it counts up, and other times it counts down, doing all of this very fast.<br><br><p>
 
 
 >8.)	Is there a ‘priority’ associated with the Mutex?  If so, how can it be changed?
 ><br>  
-><mark>___________________________________________________________________________________________________________<br><br>
+><mark>Yes, priority can be used in this mutex application. It can be applied by changing the priority of each task, in the GUI, as needed.<br><br>
 <p>
 
 ><br>
@@ -165,7 +165,7 @@ current count. The first two processes are done for you "Mutex_CountDownTask" an
 
 >  Change the priority of the Reset to be osPriorityIdle.  This is the lowest priority available. Note that you will not find this priority type listed in the .ioc configuration, as it is intended to be used for idle threads. This priority must be manually set in the code.<br>
 ><br> Did you see any effect on the ability of Button_3 to reset the count?<br><br>
-><mark>___________________________________________________________________________________________________________<br><br>
+><mark>Since Button_3 was set the lowest priority available, this caused it to take much longer until it was able to be executed and reset the count. This is because the other tasks had higher priorities, therefore, the other tasks took precedence over the reset task.<br><br>
 >
 ---
 <!--------------------------------------------------------------------------------->
@@ -196,12 +196,12 @@ display digit.
 >
 >10.) This timer was created via the GUI  (.IOC file).  It’s type is *“osTimerPeriodic”* which means it repeats over and over.<br><br>
 What other options can a Software Timer take to change its Type and operation? <br>
-><mark>___________________________________________________________________________________________________________<br><br>
+><mark>In CMSIS-RTOS2, the other option for timers is osTimerOnce, which makes it so that the timer runs once and then stops. In FreeRTOS, the same concepts apply, but they are called: Auto-Reload Timer(pdTRUE), and  One-Shot Timer(pdFALSE) respectively. <br><br>
 
 >11).	The debounce for the switches here used an osDelay() call (non-blocking).  Is there any advantage to using a SWTimer here instead?<br>
 > Explain why or why not?
 >
-><mark>___________________________________________________________________________________________________________<br><br>
+><mark>Even though the osDelay() command is non-blocking for the CPU, meaning it lets the CPU work on other tasks while its own task is being delayed for the specified amount of time, it does block its task momentarily. On the other hand, a SWTimer does not block the task it is working with. Therefore, there is an advantage to use a SWTimer instead.<br><br>
 
 
 <!--------------------------------------------------------------------------------->
